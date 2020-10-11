@@ -1,4 +1,7 @@
 ### file don't sync with github
+
+/.idea
+
 # Compiled class file
 *.class
 
@@ -14,3 +17,8 @@
 *.tar.gz
 *.rar
 
+projectcmd.iml
+src/backend/main/com/projectcmd/csvprocessor/
+src/backend/main/com/projectcmd/printerConnector/
+src/backend/test/
+src/frontend/
