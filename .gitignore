@@ -8,6 +8,9 @@
 # Log file
 *.log
 
+# intellij
+*.iml
+
 # Package Files #
 *.jar
 *.war
