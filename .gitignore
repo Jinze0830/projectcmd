@@ -16,9 +16,3 @@
 *.zip
 *.tar.gz
 *.rar
-
-projectcmd.iml
-src/backend/main/com/projectcmd/csvprocessor/
-src/backend/main/com/projectcmd/printerConnector/
-src/backend/test/
-src/frontend/
