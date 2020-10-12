@@ -7,6 +7,7 @@ import backend.main.com.projectcmd.printerConnector.TcpClient;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
+import java.util.ArrayList;
 
 public class TempTestPortal {
     public static void main(String[] args) {
@@ -15,9 +16,12 @@ public class TempTestPortal {
             List<String> readCSV
                     = reader.getColumn("./resources/Test.csv");
 
-            readCSV.forEach(e -> System.out.println("current line:" + e));
-            List<byte[]> cmds = CommandFactor.getHexStrs("BH", "1", readCSV);
-            TcpClient client = new TcpClient("192.168.0.101", 9004);
+            // readCSV.forEach(e -> System.out.println("current line:" + e));
+            //List<byte[]> cmds = CommandFactor.getHexStrs("BH", "1", readCSV);
+            List<byte[]> cmds = new ArrayList<>();
+            cmds.add(CommandFactor.getHexStr("SB", null, null));
+
+            TcpClient client = new TcpClient("192.168.1.100", 9004);
             client.startClientWithCommand(cmds);
         } catch (FileNotFoundException exception) {
             System.out.println("file not found");
