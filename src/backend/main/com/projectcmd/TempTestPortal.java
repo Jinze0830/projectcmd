@@ -17,7 +17,7 @@ public class TempTestPortal {
 
             readCSV.forEach(e -> System.out.println("current line:" + e));
             List<byte[]> cmds = CommandFactor.getHexStrs("BH", "1", readCSV);
-            TcpClient client = new TcpClient("127.0.0.1", 8080);
+            TcpClient client = new TcpClient("192.168.0.101", 9004);
             client.startClientWithCommand(cmds);
         } catch (FileNotFoundException exception) {
             System.out.println("file not found");
