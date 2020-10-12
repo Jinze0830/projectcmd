@@ -1,5 +1,8 @@
 package backend.main.com.projectcmd.csvprocessor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class CommandFactor {
     public static String getHexStr(String command, String format, String content, String suffix) {
         String message = "";
@@ -16,5 +19,11 @@ public class CommandFactor {
         }
 
         return hexStr;
+    }
+
+    public static List<String> getHexStrs(String command, String format, List<String> content, String suffix) {
+        List<String> hexStrs = new ArrayList<>();
+        content.forEach(cur -> hexStrs.add(CommandFactor.getHexStr(command, format, cur, suffix)));
+        return hexStrs;
     }
 }
