@@ -1,9 +1,6 @@
 package backend.main.com.projectcmd.printerConnector;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintStream;
+import java.io.*;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.util.List;
@@ -18,14 +15,15 @@ public class TcpClient {
         CLIENT.setSoTimeout(TIME_OUT);
     }
 
-    public void startClientWithCommand(List<String> commands) throws IOException {
-        PrintStream out = new PrintStream(CLIENT.getOutputStream());
+    public void startClientWithCommand(List<byte[]> commands) throws IOException {
+        DataOutputStream out = new DataOutputStream(CLIENT.getOutputStream());
 
         // message from server
         BufferedReader buf =  new BufferedReader(new InputStreamReader(CLIENT.getInputStream()));
 
-        for (String command : commands) {
-            out.println(command);
+        for (byte[] command : commands) {
+
+            out.write(command);
             out.flush();
 
             try {
