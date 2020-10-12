@@ -9,7 +9,7 @@ public class CommandFactorTest {
 
     @Test
     public void getHexStrTest() {
-        assertEquals("42482c20312c2048656c6c6f20576f726c64",
-                CommandFactor.getHexStr("BH", "1", "Hello World", null));
+        assertEquals("42482c322c414243440d",
+                CommandFactor.getHexStr("BH", "2", "ABCD"));
     }
 }
