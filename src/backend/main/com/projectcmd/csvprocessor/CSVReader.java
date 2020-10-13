@@ -12,11 +12,13 @@ public class CSVReader {
                 records.add(scanner.nextLine().split(",")[0]);
             }
         }
+        // split to bucket with 80 barcode in each
         List<List<String>> buckets = buildBucket(records);
 
         return buckets;
     }
 
+    // split to bucket with 80 barcode in each
     private List<List<String>> buildBucket(Set<String> records) {
         List<List<String>> buckets = new ArrayList<>();
         List<String> curBucket = new ArrayList<>();

@@ -28,6 +28,7 @@ public class TcpClient {
         BufferedReader buf =  new BufferedReader(new InputStreamReader(client.getInputStream()));
         int count = start;
 
+        // iterate barcode and send to program to update
         for (String barcode : barcodes) {
             byte[] curCommand = CommandFactor.getByteArr("BE", count + ",1", barcode);
             count++;
@@ -50,6 +51,12 @@ public class TcpClient {
             out.flush();
             try {
                 String response = buf.readLine();
+
+                //TODO:what we will get when total count less than 80
+                if(response == null) {
+                    break;
+                }
+
                 System.out.println(response);
                 response.split(",");
                 status = Integer.parseInt(response.split(",")[1]);
@@ -58,9 +65,11 @@ public class TcpClient {
                 break;
             }
 
+            // stop 2 secs between each check
             Thread.sleep(2000);
         }
 
+        //TODO: STOP THE PROGRAM. DO WE NEED THIS?
         byte[] ckStatus = CommandFactor.getByteArr("SR", null, null);
         out.write(ckStatus);
         out.flush();

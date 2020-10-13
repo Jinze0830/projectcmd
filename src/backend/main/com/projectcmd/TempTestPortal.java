@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Scanner;
 
+//RUN for test
 public class TempTestPortal {
     public static void main(String[] args) {
 //        CSVReader reader = new CSVReader();
