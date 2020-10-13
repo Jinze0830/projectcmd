@@ -44,7 +44,7 @@ public class TcpClient {
 
             try {
                 String response = buf.readLine();
-                System.out.println(response);
+                System.out.println("BE RESPONSE: " + response);
             } catch(SocketTimeoutException exception) {
                 System.out.println("barcode update issue");
             }
@@ -55,12 +55,13 @@ public class TcpClient {
         for (int i = 0; i <= barcodes.size(); i++) {
             byte[] curCommand = CommandFactor.getByteArr("FW", fwCount + "", null);
             fwCount++;
+            Thread.sleep(500);
             out.write(curCommand);
             out.flush();
 
             try {
                 String response = buf.readLine();
-                System.out.println(response);
+                // System.out.println("FW RESPONSE: " + response);
             } catch(SocketTimeoutException exception) {
                 System.out.println("fw to buffer issue");
             }
@@ -72,7 +73,7 @@ public class TcpClient {
 
         // check status
         int status = start;
-        while(status != start + barcodes.size() + 1) {
+        while(status != start + barcodes.size()) {
             byte[] ckStatus = CommandFactor.getByteArr("FR", null, null);
             out.write(ckStatus);
             out.flush();
@@ -84,16 +85,20 @@ public class TcpClient {
                     break;
                 }
 
-                System.out.println(response);
-                response.split(",");
-                status = Integer.parseInt(response.split(",")[1]);
+                System.out.println("FR RESPONSE: " + response);
+                if (response != null) {
+                    String[] curResponse = response.split(",");
+                    if (curResponse[0].equals("FR")) {
+                        status = Integer.parseInt(curResponse[1]);
+                    }
+                }
             } catch(SocketTimeoutException exception) {
                 System.out.println("not response from server");
                 break;
             }
 
             // stop 2 secs between each check
-            Thread.sleep(2000);
+            Thread.sleep(1000);
         }
 
         //TODO: STOP THE PROGRAM. DO WE NEED THIS?
