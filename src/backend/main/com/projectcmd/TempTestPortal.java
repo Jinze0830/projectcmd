@@ -44,15 +44,10 @@ public class TempTestPortal {
 
         while(buckets != null && count < buckets.size()) {
             System.out.println("Do you want to continue: ");
-            if(sc.hasNextLine() || sc.nextLine().toLowerCase().equals("yes")) {
+            if(sc.hasNextLine() && sc.nextLine().toLowerCase().equals("yes")) {
                 try {
                     TcpClient client = new TcpClient("192.168.0.100", 9004);
                     client.sendBarcodes(buckets.get(count), 20);
-                    System.out.println("Continue?");
-
-                    if (sc.hasNextLine() || sc.nextLine().toLowerCase().equals("no")) {
-                        break;
-                    }
                 } catch(IOException e) {
                     System.out.println("connect issue");
                 } catch(InterruptedException e) {
