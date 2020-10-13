@@ -19,12 +19,13 @@ public class CSVReader {
     }
 
     // split to bucket with 80 barcode in each
-    private List<List<String>> buildBucket(Set<String> records) {
+    public List<List<String>> buildBucket(Set<String> records) {
         List<List<String>> buckets = new ArrayList<>();
         List<String> curBucket = new ArrayList<>();
 
+        //TODO: try 5 line each time first
         for(String record : records) {
-            if(curBucket.size() == 80) {
+            if(curBucket.size() == 5) {
                 buckets.add(new ArrayList<>(curBucket));
                 curBucket = new ArrayList<>();
             }
@@ -32,6 +33,7 @@ public class CSVReader {
             curBucket.add(record);
         }
 
+        buckets.add(new ArrayList<>(curBucket));
         return buckets;
     }
 }
