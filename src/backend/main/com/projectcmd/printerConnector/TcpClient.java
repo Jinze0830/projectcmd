@@ -1,29 +1,37 @@
 package backend.main.com.projectcmd.printerConnector;
 
+import backend.main.com.projectcmd.csvprocessor.CommandFactor;
+
 import java.io.*;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.util.List;
 
 public class TcpClient {
-    private final Socket CLIENT;
-    private final int TIME_OUT = 10000;
+    private static final int TIME_OUT = 10000;
+    private static String ip;
+    private static int port;
 
 
     public TcpClient(String ip, int port) throws IOException {
-        CLIENT = new Socket(ip, port);
-        CLIENT.setSoTimeout(TIME_OUT);
+        this.ip = ip;
+        this.port = port;
+
     }
 
-    public void startClientWithCommand(List<byte[]> commands) throws IOException {
-        DataOutputStream out = new DataOutputStream(CLIENT.getOutputStream());
+    public synchronized void sendBarcodes(List<String> barcodes, int start) throws IOException, InterruptedException {
+        Socket client = new Socket(ip, port);
+        client.setSoTimeout(TIME_OUT);
+        DataOutputStream out = new DataOutputStream(client.getOutputStream());
 
         // message from server
-        BufferedReader buf =  new BufferedReader(new InputStreamReader(CLIENT.getInputStream()));
+        BufferedReader buf =  new BufferedReader(new InputStreamReader(client.getInputStream()));
+        int count = start;
 
-        for (byte[] command : commands) {
-
-            out.write(command);
+        for (String barcode : barcodes) {
+            byte[] curCommand = CommandFactor.getByteArr("BE", count + ",1", barcode);
+            count++;
+            out.write(curCommand);
             out.flush();
 
             try {
@@ -34,8 +42,31 @@ public class TcpClient {
             }
         }
 
-        if(CLIENT != null) {
-            CLIENT.close();
+        // check status
+        int status = start;
+        while(status != start + 80) {
+            byte[] ckStatus = CommandFactor.getByteArr("FR", "02", null);
+            out.write(ckStatus);
+            out.flush();
+            try {
+                String response = buf.readLine();
+                System.out.println(response);
+                response.split(",");
+                status = Integer.parseInt(response.split(",")[1]);
+            } catch(SocketTimeoutException exception) {
+                System.out.println("not response from server");
+                break;
+            }
+
+            Thread.sleep(2000);
+        }
+
+        byte[] ckStatus = CommandFactor.getByteArr("SR", null, null);
+        out.write(ckStatus);
+        out.flush();
+
+        if(client != null) {
+            client.close();
         }
     }
 }
