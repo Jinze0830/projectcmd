@@ -5,6 +5,19 @@ import java.io.FileNotFoundException;
 import java.util.*;
 
 public class CSVReader {
+
+    public Queue<String> getAllBarcodes(String path) throws FileNotFoundException {
+        Queue<String> queue = new LinkedList<>();
+        try (Scanner scanner = new Scanner(new File(path));) {
+            while (scanner.hasNextLine()) {
+                queue.add(scanner.nextLine().split(",")[0]);
+            }
+        }
+        // split to bucket with 80 barcode in each
+
+        return queue;
+    }
+
     public List<List<String>> getColumnBuckets(String path) throws FileNotFoundException {
         Set<String> records = new HashSet<>();
         try (Scanner scanner = new Scanner(new File(path));) {
@@ -19,7 +32,7 @@ public class CSVReader {
     }
 
     // split to bucket with 80 barcode in each
-    public List<List<String>> buildBucket(Set<String> records) {
+    private List<List<String>> buildBucket(Set<String> records) {
         List<List<String>> buckets = new ArrayList<>();
         List<String> curBucket = new ArrayList<>();
 
@@ -35,5 +48,15 @@ public class CSVReader {
 
         buckets.add(new ArrayList<>(curBucket));
         return buckets;
+    }
+
+    public static List<String> getBarcodeBucketByLotNum(Queue<String> barcodes, int count) {
+        int curCount = 1;
+        List<String> res = new ArrayList<>();
+        while(barcodes.size() > 0 && curCount <= count) {
+            res.add(barcodes.poll());
+        }
+
+        return res;
     }
 }

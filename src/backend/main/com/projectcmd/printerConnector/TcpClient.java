@@ -18,7 +18,7 @@ public class TcpClient {
 
     }
 
-    public synchronized void sendBarcodes(List<String> barcodes, int start) throws IOException, InterruptedException {
+    public synchronized void sendBarcodes(List<String> barcodes, int start, String lotNumber) throws IOException, InterruptedException {
         Socket client = new Socket(ip, port);
         client.setSoTimeout(TIME_OUT);
         DataOutputStream out = new DataOutputStream(client.getOutputStream());
@@ -48,6 +48,14 @@ public class TcpClient {
             } catch(SocketTimeoutException exception) {
                 System.out.println("barcode update issue");
             }
+        }
+
+        int fsCount = start;
+        for (int i = 0; i < barcodes.size(); i++) {
+            byte[] curCommand = CommandFactor.getByteArr("FS", fsCount + ",1,0,0", lotNumber);
+            fsCount++;
+            out.write(curCommand);
+            out.flush();
         }
 
         // send n + 1 fw to buffer

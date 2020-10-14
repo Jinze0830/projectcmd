@@ -5,10 +5,7 @@ import backend.main.com.projectcmd.printerConnector.TcpClient;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Scanner;
-import java.util.Set;
+import java.util.*;
 
 //RUN for test
 public class TempTestPortal {
@@ -33,21 +30,43 @@ public class TempTestPortal {
 
         CSVReader reader = new CSVReader();
         Scanner sc = new Scanner(System.in);
-        List<List<String>> buckets = null;
+        //fixed buckets
+//        List<List<String>> buckets = null;
+//        try {
+//            buckets = reader.getColumnBuckets("./resources/Test.csv");
+//        } catch(FileNotFoundException e) {
+//            System.out.println("file not found!");
+//        }
+
+        //dynamic buckets
+        Queue<String> barcodes = null;
         try {
-            buckets = reader.getColumnBuckets("./resources/Test.csv");
+            barcodes = reader.getAllBarcodes("./resources/Test.csv");
         } catch(FileNotFoundException e) {
             System.out.println("file not found!");
         }
 
         int count = 0;
+        String lotNumber = "";
+        int lotCount = 0;
 
-        while(buckets != null && count < buckets.size()) {
+        while(barcodes != null && barcodes.size() > 0) {
+
             System.out.println("Do you want to continue: ");
             if(sc.hasNextLine() && sc.nextLine().toLowerCase().equals("yes")) {
+                System.out.println("Please enter lotNumber: ");
+                if(sc.hasNextLine()) {
+                    lotNumber = sc.nextLine();
+                }
+                System.out.println("Please enter lotCount: ");
+                if(sc.hasNextLine()) {
+                    lotCount = Integer.parseInt(sc.nextLine());
+                }
+                List<String> curBucket = CSVReader.getBarcodeBucketByLotNum(barcodes, lotCount);
+
                 try {
                     TcpClient client = new TcpClient("192.168.0.100", 9004);
-                    client.sendBarcodes(buckets.get(count), 20);
+                    client.sendBarcodes(curBucket, 20, lotNumber);
                 } catch(IOException e) {
                     System.out.println("connect issue");
                 } catch(InterruptedException e) {
@@ -57,6 +76,26 @@ public class TempTestPortal {
                 break;
             }
         }
+
+
+
+//        while(buckets != null && count < buckets.size()) {
+//
+//            System.out.println("Do you want to continue: ");
+//            System.out.println("Do you want to continue: ");
+//            if(sc.hasNextLine() && sc.nextLine().toLowerCase().equals("yes")) {
+//                try {
+//                    TcpClient client = new TcpClient("192.168.0.100", 9004);
+//                    client.sendBarcodes(buckets.get(count), 20, lotNumber);
+//                } catch(IOException e) {
+//                    System.out.println("connect issue");
+//                } catch(InterruptedException e) {
+//
+//                }
+//            } else if(sc.hasNextLine() || sc.nextLine().toLowerCase().equals("no")) {
+//                break;
+//            }
+//        }
 
 //        CSVReader csvReader = new CSVReader();
 //        Set<String> records = new HashSet<>();
