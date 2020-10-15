@@ -1,7 +1,7 @@
 package backend.main.com.projectcmd;
 
 import backend.main.com.projectcmd.csvprocessor.CSVReader;
-import backend.main.com.projectcmd.printerConnector.TcpClient;
+import backend.main.com.projectcmd.printerConnector.FlowLineSvc;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -46,57 +46,23 @@ public class TempTestPortal {
             System.out.println("file not found!");
         }
 
-        int count = 0;
-        String lotNumber = "";
-        int lotCount = 0;
-
-        while(barcodes != null && barcodes.size() > 0) {
-
-            System.out.println("Do you want to continue: ");
-            if(sc.hasNextLine() && sc.nextLine().toLowerCase().equals("yes")) {
-                System.out.println("Please enter lotNumber: ");
+        // start scanning
+        System.out.println("Do you want to start: ");
+        if(sc.hasNextLine() && sc.nextLine().toLowerCase().equals("yes")) {
+            System.out.println("Please enter lotNumber: ");
+            try {
+                FlowLineSvc flowLineSvc = new FlowLineSvc("192.168.0.100", 9004);
                 if(sc.hasNextLine()) {
-                    lotNumber = sc.nextLine();
+                    flowLineSvc.setLotNumber(sc.nextLine());
                 }
-                System.out.println("Please enter lotCount: ");
-                if(sc.hasNextLine()) {
-                    lotCount = Integer.parseInt(sc.nextLine());
-                }
-                List<String> curBucket = CSVReader.getBarcodeBucketByLotNum(barcodes, lotCount);
 
-                try {
-                    TcpClient client = new TcpClient("192.168.0.100", 9004);
-                    client.sendBarcodes(curBucket, 20, lotNumber);
-                } catch(IOException e) {
-                    System.out.println("connect issue");
-                } catch(InterruptedException e) {
-
-                }
-            } else if(sc.hasNextLine() || sc.nextLine().toLowerCase().equals("no")) {
-                break;
+                flowLineSvc.updateInFlow(barcodes, "5", flowLineSvc.getLotNumber(),true);
+            } catch(IOException exception) {
+                System.out.println("connect issue");
+            } catch(InterruptedException exception) {
+                System.out.println("exception");
             }
         }
-
-
-
-//        while(buckets != null && count < buckets.size()) {
-//
-//            System.out.println("Do you want to continue: ");
-//            System.out.println("Do you want to continue: ");
-//            if(sc.hasNextLine() && sc.nextLine().toLowerCase().equals("yes")) {
-//                try {
-//                    TcpClient client = new TcpClient("192.168.0.100", 9004);
-//                    client.sendBarcodes(buckets.get(count), 20, lotNumber);
-//                } catch(IOException e) {
-//                    System.out.println("connect issue");
-//                } catch(InterruptedException e) {
-//
-//                }
-//            } else if(sc.hasNextLine() || sc.nextLine().toLowerCase().equals("no")) {
-//                break;
-//            }
-//        }
-
 //        CSVReader csvReader = new CSVReader();
 //        Set<String> records = new HashSet<>();
 //        records.add("0");
