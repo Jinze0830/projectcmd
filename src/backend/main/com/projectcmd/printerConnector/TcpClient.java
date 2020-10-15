@@ -52,7 +52,7 @@ public class TcpClient {
 
         int fsCount = start;
         for (int i = 0; i < barcodes.size(); i++) {
-            byte[] curCommand = CommandFactor.getByteArr("FS", fsCount + ",1,0,0", lotNumber);
+            byte[] curCommand = CommandFactor.getByteArr("FS", fsCount + ",1,0", lotNumber);
             fsCount++;
             out.write(curCommand);
             out.flush();

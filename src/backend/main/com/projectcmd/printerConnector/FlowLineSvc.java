@@ -25,7 +25,7 @@ public class FlowLineSvc {
 
     }
 
-    public synchronized void updateInFlow(Queue<String> barcodes, String programNum, String lotNumber, boolean firstLot) throws IOException, InterruptedException {
+    public synchronized void updateInFlow(Queue<String> barcodes, String programNum, String lotNumber, boolean startProgram) throws IOException, InterruptedException {
         Socket client = new Socket(ip, port);
         client.setSoTimeout(TIME_OUT);
         DataOutputStream out = new DataOutputStream(client.getOutputStream());
@@ -80,7 +80,7 @@ public class FlowLineSvc {
                     }
                 }
 
-                if(firstLot || (getCurrentCount1() != 0 && getCurrentCount2() == 1)) {
+                if(startProgram || (getCurrentCount1() != 0 && getCurrentCount2() == 1)) {
                     byte[]  setBarcode = CommandFactor.getByteArr("BH", "1", barcodes.poll());
                     out.write(setBarcode);
                     out.flush();
@@ -93,7 +93,7 @@ public class FlowLineSvc {
                     out.flush();
                 }
 
-                firstLot = false;
+                startProgram = false;
                 Scanner sc = new Scanner(System.in);
                 System.out.println("Do you want to update lotNumber?");
                 Thread.sleep(5000);
