@@ -62,7 +62,7 @@ public class TempTestPortal {
                     lotCount = Integer.parseInt(sc.nextLine());
                 }
                 List<String> curBucket = CSVReader.getBarcodeBucketByLotNum(barcodes, lotCount);
-
+                System.out.println(curBucket.size());
                 try {
                     TcpClient client = new TcpClient("192.168.0.100", 9004);
                     CSVWriter.writeToCSV(curBucket, "./resources/printed/Test.csv");

@@ -30,33 +30,34 @@ public class TcpClient {
         byte[] stopPrev = CommandFactor.getByteArr("SR", null, null);
         out.write(stopPrev);
         out.flush();
+        printResponse(buf);
 
         byte[] cleanBuffer = CommandFactor.getByteArr("KX", null, null);
         out.write(cleanBuffer);
         out.flush();
+        printResponse(buf);
 
         // send be to program update barcode
         for (String barcode : barcodes) {
-            byte[] curCommand = CommandFactor.getByteArr("BE", beCount + ",1", barcode);
+            byte[] beCommand = CommandFactor.getByteArr("BE", beCount + ",1", barcode);
+            out.write(beCommand);
+            out.flush();
+
+            byte[] fsCommand = CommandFactor.getByteArr("FS", beCount + ",1,0", lotNumber);
+            out.write(fsCommand);
+            out.flush();
             beCount++;
-            out.write(curCommand);
-            out.flush();
-
-            try {
-                String response = buf.readLine();
-                System.out.println("BE RESPONSE: " + response);
-            } catch(SocketTimeoutException exception) {
-                System.out.println("barcode update issue");
-            }
+            Thread.sleep(50);
+            printResponse(buf);
         }
 
-        int fsCount = start;
-        for (int i = 0; i < barcodes.size(); i++) {
-            byte[] curCommand = CommandFactor.getByteArr("FS", fsCount + ",1,0,0", lotNumber);
-            fsCount++;
-            out.write(curCommand);
-            out.flush();
-        }
+//        int fsCount = start;
+//        for (int i = 0; i < barcodes.size(); i++) {
+//            byte[] curCommand = CommandFactor.getByteArr("FS", fsCount + ",1,0", lotNumber);
+//            fsCount++;
+//            out.write(curCommand);
+//            out.flush();
+//        }
 
         // send n + 1 fw to buffer
         int fwCount = start;
@@ -66,18 +67,13 @@ public class TcpClient {
             Thread.sleep(500);
             out.write(curCommand);
             out.flush();
-
-            try {
-                String response = buf.readLine();
-                // System.out.println("FW RESPONSE: " + response);
-            } catch(SocketTimeoutException exception) {
-                System.out.println("fw to buffer issue");
-            }
+            printResponse(buf);
         }
 
         byte[] resumePrint = CommandFactor.getByteArr("SQ", null, null);
         out.write(resumePrint);
         out.flush();
+        printResponse(buf);
 
         // check status
         int status = start;
@@ -87,11 +83,6 @@ public class TcpClient {
             out.flush();
             try {
                 String response = buf.readLine();
-
-                //TODO:what we will get when total count less than 80
-                if(response == null) {
-                    break;
-                }
 
                 System.out.println("FR RESPONSE: " + response);
                 if (response != null) {
@@ -105,17 +96,29 @@ public class TcpClient {
                 break;
             }
 
-            // stop 2 secs between each check
-            Thread.sleep(1000);
+            // stop 1 secs between each check
+            Thread.sleep(100);
         }
 
         //TODO: STOP THE PROGRAM. DO WE NEED THIS?
         byte[] ckStatus = CommandFactor.getByteArr("SR", null, null);
         out.write(ckStatus);
         out.flush();
+        printResponse(buf);
 
         if(client != null) {
             client.close();
+        }
+    }
+
+    private void printResponse(BufferedReader buf ) {
+        try {
+            String response = buf.readLine();
+            // System.out.println("FW RESPONSE: " + response);
+        } catch(SocketTimeoutException exception) {
+            System.out.println("fw to buffer issue");
+        } catch(IOException e) {
+
         }
     }
 }

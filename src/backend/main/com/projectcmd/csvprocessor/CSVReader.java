@@ -75,6 +75,7 @@ public class CSVReader {
         List<String> res = new ArrayList<>();
         while(barcodes.size() > 0 && curCount <= count) {
             res.add(barcodes.poll());
+            curCount++;
         }
 
         return res;
