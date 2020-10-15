@@ -97,7 +97,7 @@ public class TcpClient {
             }
 
             // stop 1 secs between each check
-            Thread.sleep(100);
+            Thread.sleep(500);
         }
 
         //TODO: STOP THE PROGRAM. DO WE NEED THIS?
@@ -114,7 +114,7 @@ public class TcpClient {
     private void printResponse(BufferedReader buf ) {
         try {
             String response = buf.readLine();
-            // System.out.println("FW RESPONSE: " + response);
+            System.out.println("RESPONSE: " + response);
         } catch(SocketTimeoutException exception) {
             System.out.println("fw to buffer issue");
         } catch(IOException e) {
