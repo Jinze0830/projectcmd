@@ -12,7 +12,7 @@ import java.util.Queue;
 import java.util.Scanner;
 
 public class FlowLineSvc {
-    private static final int TIME_OUT = 10000;
+    private static final int TIME_OUT = 100000;
     private static String ip;
     private static int port;
     private int currentCount1 = -1;
@@ -36,30 +36,37 @@ public class FlowLineSvc {
         byte[] stopPrev = CommandFactor.getByteArr("SR", null, null);
         out.write(stopPrev);
         out.flush();
+        printResponse(buf);
 
         byte[] cleanBuffer = CommandFactor.getByteArr("KX", null, null);
         out.write(cleanBuffer);
         out.flush();
+        printResponse(buf);
 
         byte[] fwToProgram = CommandFactor.getByteArr("FW", programNum, null);
         out.write(fwToProgram);
         out.flush();
+        printResponse(buf);
 
         //init count 1 to 0
         byte[] initCount1 = CommandFactor.getByteArr("KG", "1,0", null);
         out.write(initCount1);
         out.flush();
+        printResponse(buf);
 
         //init count 2 to 0
         byte[] initCount2 = CommandFactor.getByteArr("KG", "2,0", null);
         out.write(initCount2);
         out.flush();
+        printResponse(buf);
 
         // send be to program update barcode
         while(!barcodes.isEmpty()) {
+            System.out.println("in the loop");
             byte[]  count1Status = CommandFactor.getByteArr("KH", "1", null);
             out.write(count1Status);
             out.flush();
+
 
             byte[]  count2Status = CommandFactor.getByteArr("KH", "2", null);
             out.write(count2Status);
@@ -81,28 +88,38 @@ public class FlowLineSvc {
                 }
 
                 if(startProgram || (getCurrentCount1() != 0 && getCurrentCount2() == 1)) {
+                    out.write(initCount2);
+                    out.flush();
+                    printResponse(buf);
+
                     byte[]  setBarcode = CommandFactor.getByteArr("BH", "1", barcodes.poll());
                     out.write(setBarcode);
                     out.flush();
+                    printResponse(buf);
 
-                    byte[]  setLotNumber = CommandFactor.getByteArr("BX", "0,1", lotNumber);
+                    Thread.sleep(100);
+
+                    byte[]  setLotNumber = CommandFactor.getByteArr("BK", "1,0", lotNumber);
                     out.write(setLotNumber);
                     out.flush();
+                    printResponse(buf);
 
-                    out.write(initCount2);
+                    byte[]  sqNumber = CommandFactor.getByteArr("SQ", null, null);
+                    out.write(sqNumber);
                     out.flush();
+                    printResponse(buf);
                 }
 
                 startProgram = false;
-                Scanner sc = new Scanner(System.in);
-                System.out.println("Do you want to update lotNumber?");
-                Thread.sleep(5000);
-                if(sc.hasNextLine()) {
-                    setLotNumber(sc.nextLine());
-                }
+//                Scanner sc = new Scanner(System.in);
+
+//                System.out.println("Do you want to update lotNumber?");
+//                Thread.sleep(1000);
             } catch(SocketTimeoutException exception) {
                 System.out.println("not response from server");
                 break;
+            } catch(IOException E) {
+                System.out.println("io exception 1");
             }
         }
 
@@ -110,6 +127,7 @@ public class FlowLineSvc {
         byte[] ckStatus = CommandFactor.getByteArr("SR", null, null);
         out.write(ckStatus);
         out.flush();
+        printResponse(buf);
 
         if(client != null) {
             client.close();
@@ -138,5 +156,16 @@ public class FlowLineSvc {
 
     public void setLotNumber(String lotNumber) {
         this.lotNumber = lotNumber;
+    }
+
+    private void printResponse(BufferedReader buf ) {
+        try {
+            String response = buf.readLine();
+            System.out.println("RESPONSE: " + response);
+        } catch(SocketTimeoutException exception) {
+            System.out.println("fw to buffer issue");
+        } catch(IOException e) {
+            System.out.println("io exception");
+        }
     }
 }
