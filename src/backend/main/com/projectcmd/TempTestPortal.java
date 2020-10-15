@@ -1,6 +1,7 @@
 package backend.main.com.projectcmd;
 
 import backend.main.com.projectcmd.csvprocessor.CSVReader;
+import backend.main.com.projectcmd.csvprocessor.CSVWriter;
 import backend.main.com.projectcmd.printerConnector.TcpClient;
 
 import java.io.FileNotFoundException;
@@ -9,7 +10,7 @@ import java.util.*;
 
 //RUN for test
 public class TempTestPortal {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
 //        CSVReader reader = new CSVReader();
 //        try {
 //            Set<String> readCSV
@@ -41,17 +42,15 @@ public class TempTestPortal {
         //dynamic buckets
         Queue<String> barcodes = null;
         try {
-            barcodes = reader.getAllBarcodes("./resources/Test.csv");
+            barcodes = reader.getUnprintedBarcodes("./resources/Test.csv", "./resources/printed/Test.csv");
         } catch(FileNotFoundException e) {
             System.out.println("file not found!");
         }
 
-        int count = 0;
         String lotNumber = "";
         int lotCount = 0;
 
         while(barcodes != null && barcodes.size() > 0) {
-
             System.out.println("Do you want to continue: ");
             if(sc.hasNextLine() && sc.nextLine().toLowerCase().equals("yes")) {
                 System.out.println("Please enter lotNumber: ");
@@ -66,6 +65,7 @@ public class TempTestPortal {
 
                 try {
                     TcpClient client = new TcpClient("192.168.0.100", 9004);
+                    CSVWriter.writeToCSV(curBucket, "./resources/printed/Test.csv");
                     client.sendBarcodes(curBucket, 20, lotNumber);
                 } catch(IOException e) {
                     System.out.println("connect issue");
@@ -77,7 +77,11 @@ public class TempTestPortal {
             }
         }
 
-
+//        List<String> list = new ArrayList<>();
+//        list.add("1");
+//        list.add("1");
+//        list.add("2");
+//        CSVWriter.writeToCSV(list, "./resources/printed/Test.csv");
 
 //        while(buckets != null && count < buckets.size()) {
 //
