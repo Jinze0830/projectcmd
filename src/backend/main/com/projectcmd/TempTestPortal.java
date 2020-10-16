@@ -10,34 +10,9 @@ import java.util.*;
 //RUN for test
 public class TempTestPortal {
     public static void main(String[] args) {
-//        CSVReader reader = new CSVReader();
-//        try {
-//            Set<String> readCSV
-//                    = reader.getColumn("./resources/Test.csv");
-
-            // readCSV.forEach(e -> System.out.println("current line:" + e));
-            //List<byte[]> cmds = CommandFactor.getHexStrs("BH", "1", readCSV);
-//            List<byte[]> cmds = new ArrayList<>();
-//            cmds.add(CommandFactor.getHexStr("SB", null, null));
-//
-//            TcpClient client = new TcpClient("192.168.1.100", 9004);
-//            client.startClientWithCommand(cmds);
-//        } catch (FileNotFoundException exception) {
-//            System.out.println("file not found");
-//        } catch (IOException exception) {
-//            System.out.println("connection issue");
-//        }
 
         CSVReader reader = new CSVReader();
         Scanner sc = new Scanner(System.in);
-        //fixed buckets
-//        List<List<String>> buckets = null;
-//        try {
-//            buckets = reader.getColumnBuckets("./resources/Test.csv");
-//        } catch(FileNotFoundException e) {
-//            System.out.println("file not found!");
-//        }
-
         //dynamic buckets
         Queue<String> barcodes = null;
         try {

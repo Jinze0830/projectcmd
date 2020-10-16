@@ -9,7 +9,6 @@ import java.io.InputStreamReader;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.util.Queue;
-import java.util.Scanner;
 
 public class FlowLineSvc {
     private static final int TIME_OUT = 100000;
@@ -36,78 +35,84 @@ public class FlowLineSvc {
         byte[] stopPrev = CommandFactor.getByteArr("SR", null, null);
         out.write(stopPrev);
         out.flush();
-        printResponse(buf);
+        getResponse(buf, "SR");
 
         byte[] cleanBuffer = CommandFactor.getByteArr("KX", null, null);
         out.write(cleanBuffer);
         out.flush();
-        printResponse(buf);
+        getResponse(buf, "KX");
 
         byte[] fwToProgram = CommandFactor.getByteArr("FW", programNum, null);
         out.write(fwToProgram);
         out.flush();
-        printResponse(buf);
+        getResponse(buf, "FW");
 
         //init count 1 to 0
         byte[] initCount1 = CommandFactor.getByteArr("KG", "1,0", null);
         out.write(initCount1);
         out.flush();
-        printResponse(buf);
+        getResponse(buf, "KG1");
 
         //init count 2 to 0
         byte[] initCount2 = CommandFactor.getByteArr("KG", "2,0", null);
         out.write(initCount2);
         out.flush();
-        printResponse(buf);
+        getResponse(buf, "KG2");
 
         // send be to program update barcode
         while(!barcodes.isEmpty()) {
             System.out.println("in the loop");
-            byte[]  count1Status = CommandFactor.getByteArr("KH", "1", null);
-            out.write(count1Status);
-            out.flush();
-
-
-            byte[]  count2Status = CommandFactor.getByteArr("KH", "2", null);
-            out.write(count2Status);
-            out.flush();
 
             try {
-                String response = buf.readLine();
+                byte[]  count1Status = CommandFactor.getByteArr("KH", "1", null);
+                out.write(count1Status);
+                out.flush();
 
-                System.out.println("KH RESPONSE: " + response);
-                if (response != null) {
-                    String[] curResponse = response.split(",");
+                String count1response = getResponse(buf, "KH1");
+
+                if (count1response != null) {
+                    String[] curResponse = count1response.split(",");
                     if (curResponse[0].equals("KH") && curResponse[1].equals("1")) {
                         setCurrentCount1(Integer.parseInt(curResponse[2]));
                     }
+                }
 
+                byte[]  count2Status = CommandFactor.getByteArr("KH", "2", null);
+                out.write(count2Status);
+                out.flush();
+
+                String count2response = getResponse(buf, "KH2");
+
+                System.out.println("KH2 RESPONSE: " + count1response);
+                if (count2response != null) {
+                    String[] curResponse = count2response.split(",");
                     if (curResponse[0].equals("KH") && curResponse[1].equals("2")) {
                         setCurrentCount2(Integer.parseInt(curResponse[2]));
                     }
                 }
 
+
                 if(startProgram || (getCurrentCount1() != 0 && getCurrentCount2() == 1)) {
                     out.write(initCount2);
                     out.flush();
-                    printResponse(buf);
+                    getResponse(buf, "KG2");
 
                     byte[]  setBarcode = CommandFactor.getByteArr("BH", "1", barcodes.poll());
                     out.write(setBarcode);
                     out.flush();
-                    printResponse(buf);
+                    getResponse(buf, "BH");
 
                     Thread.sleep(100);
 
                     byte[]  setLotNumber = CommandFactor.getByteArr("BK", "1,0", lotNumber);
                     out.write(setLotNumber);
                     out.flush();
-                    printResponse(buf);
+                    getResponse(buf, "BK");
 
                     byte[]  sqNumber = CommandFactor.getByteArr("SQ", null, null);
                     out.write(sqNumber);
                     out.flush();
-                    printResponse(buf);
+                    getResponse(buf, "SQ");
                 }
 
                 startProgram = false;
@@ -127,7 +132,7 @@ public class FlowLineSvc {
         byte[] ckStatus = CommandFactor.getByteArr("SR", null, null);
         out.write(ckStatus);
         out.flush();
-        printResponse(buf);
+        getResponse(buf, "SR");
 
         if(client != null) {
             client.close();
@@ -158,14 +163,17 @@ public class FlowLineSvc {
         this.lotNumber = lotNumber;
     }
 
-    private void printResponse(BufferedReader buf ) {
+    private String getResponse(BufferedReader buf, String command) {
+        String response = null;
         try {
-            String response = buf.readLine();
-            System.out.println("RESPONSE: " + response);
+            response = buf.readLine();
+            System.out.println(command + " RESPONSE: " + response);
         } catch(SocketTimeoutException exception) {
             System.out.println("fw to buffer issue");
         } catch(IOException e) {
             System.out.println("io exception");
         }
+
+        return response;
     }
 }
