@@ -42,7 +42,7 @@ public class TempTestPortal {
         //dynamic buckets
         Queue<String> barcodes = null;
         try {
-            barcodes = reader.getUnprintedBarcodes("./resources/Test.csv", "./resources/printed/Test.csv");
+            barcodes = reader.getUnprintedBarcodes("./resources/Test.csv", "./resources/printed/Test-Printed.csv");
         } catch(FileNotFoundException e) {
             System.out.println("file not found!");
         }
@@ -53,10 +53,10 @@ public class TempTestPortal {
         while(barcodes != null && barcodes.size() > 0) {
             System.out.println("Do you want to continue: ");
             if(sc.hasNextLine() && sc.nextLine().toLowerCase().equals("yes")) {
-                System.out.println("Please enter lotNumber: ");
-                if(sc.hasNextLine()) {
-                    lotNumber = sc.nextLine();
-                }
+//                System.out.println("Please enter lotNumber: ");
+//                if(sc.hasNextLine()) {
+//                    lotNumber = sc.nextLine();
+//                }
                 System.out.println("Please enter lotCount: ");
                 if(sc.hasNextLine()) {
                     lotCount = Integer.parseInt(sc.nextLine());
@@ -65,7 +65,7 @@ public class TempTestPortal {
                 System.out.println(curBucket.size());
                 try {
                     TcpClient client = new TcpClient("192.168.0.100", 9004);
-                    CSVWriter.writeToCSV(curBucket, "./resources/printed/Test.csv");
+                    CSVWriter.writeToCSV(curBucket, "./resources/printed/Test-Printed.csv");
                     client.sendBarcodes(curBucket, 20, lotNumber);
                 } catch(IOException e) {
                     System.out.println("connect issue");

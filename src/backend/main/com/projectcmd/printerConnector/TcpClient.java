@@ -43,9 +43,9 @@ public class TcpClient {
             out.write(beCommand);
             out.flush();
 
-            byte[] fsCommand = CommandFactor.getByteArr("FS", beCount + ",1,0", lotNumber);
-            out.write(fsCommand);
-            out.flush();
+//            byte[] fsCommand = CommandFactor.getByteArr("FS", beCount + ",1,0", lotNumber);
+//            out.write(fsCommand);
+//            out.flush();
             beCount++;
             Thread.sleep(50);
             printResponse(buf);
