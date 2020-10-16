@@ -1,6 +1,8 @@
 package backend.main.com.projectcmd.printerConnector;
 
+import backend.main.com.projectcmd.csvprocessor.CSVWriter;
 import backend.main.com.projectcmd.csvprocessor.CommandFactor;
+import frontend.PrinterControllerUI;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -8,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
+import java.util.Arrays;
 import java.util.Queue;
 
 public class FlowLineSvc {
@@ -17,14 +20,19 @@ public class FlowLineSvc {
     private int currentCount1 = -1;
     private int currentCount2 = -1;
     private String lotNumber = "";
+    private boolean stopProgram = false;
+    private String currentBarcode;
 
     public FlowLineSvc(String ip, int port) throws IOException {
         this.ip = ip;
         this.port = port;
-
     }
 
-    public synchronized void updateInFlow(Queue<String> barcodes, String programNum, String lotNumber, boolean startProgram) throws IOException, InterruptedException {
+    public synchronized void updateInFlow(Queue<String> barcodes,
+                                          String programNum,
+                                          String lotNumber,
+                                          boolean startProgram,
+                                          String fileName) throws IOException, InterruptedException {
         Socket client = new Socket(ip, port);
         client.setSoTimeout(TIME_OUT);
         DataOutputStream out = new DataOutputStream(client.getOutputStream());
@@ -59,8 +67,17 @@ public class FlowLineSvc {
         out.flush();
         getResponse(buf, "KG2");
 
+        //update lot number for barcodes
+        byte[]  setLotNumber = CommandFactor.getByteArr("BK", "1,0", lotNumber);
+        out.write(setLotNumber);
+        out.flush();
+        getResponse(buf, "BK");
+
         // send be to program update barcode
         while(!barcodes.isEmpty()) {
+            if(stopProgram) {
+                break;
+            }
             System.out.println("in the loop");
 
             try {
@@ -97,17 +114,17 @@ public class FlowLineSvc {
                     out.flush();
                     getResponse(buf, "KG2");
 
-                    byte[]  setBarcode = CommandFactor.getByteArr("BH", "1", barcodes.poll());
+                    String barcode = barcodes.poll();
+                    byte[]  setBarcode = CommandFactor.getByteArr("BH", "1", barcode);
                     out.write(setBarcode);
                     out.flush();
                     getResponse(buf, "BH");
 
-                    Thread.sleep(100);
+                    //update current barcode and add in csv
+                    setCurrentBarcode(barcode);
+                    CSVWriter.writeToCSV(Arrays.asList(barcode), "./resources/printed/" + fileName);
 
-                    byte[]  setLotNumber = CommandFactor.getByteArr("BK", "1,0", lotNumber);
-                    out.write(setLotNumber);
-                    out.flush();
-                    getResponse(buf, "BK");
+                    Thread.sleep(100);
 
                     byte[]  sqNumber = CommandFactor.getByteArr("SQ", null, null);
                     out.write(sqNumber);
@@ -116,6 +133,7 @@ public class FlowLineSvc {
                 }
 
                 startProgram = false;
+
 //                Scanner sc = new Scanner(System.in);
 
 //                System.out.println("Do you want to update lotNumber?");
@@ -161,6 +179,22 @@ public class FlowLineSvc {
 
     public void setLotNumber(String lotNumber) {
         this.lotNumber = lotNumber;
+    }
+
+    public boolean isStopProgram() {
+        return stopProgram;
+    }
+
+    public void setStopProgram(boolean stopProgram) {
+        this.stopProgram = stopProgram;
+    }
+
+    public String getCurrentBarcode() {
+        return currentBarcode;
+    }
+
+    public void setCurrentBarcode(String currentBarcode) {
+        this.currentBarcode = currentBarcode;
     }
 
     private String getResponse(BufferedReader buf, String command) {
