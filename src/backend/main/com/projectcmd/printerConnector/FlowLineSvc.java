@@ -1,16 +1,14 @@
 package backend.main.com.projectcmd.printerConnector;
 
-import backend.main.com.projectcmd.csvprocessor.CSVWriter;
 import backend.main.com.projectcmd.csvprocessor.CommandFactor;
-import frontend.PrinterControllerUI;
 
+import javax.swing.*;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
-import java.util.Arrays;
 import java.util.Queue;
 
 public class FlowLineSvc {
@@ -19,20 +17,34 @@ public class FlowLineSvc {
     private static int port;
     private int currentCount1 = -1;
     private int currentCount2 = -1;
-    private String lotNumber = "";
-    private boolean stopProgram = false;
     private String currentBarcode;
+    private SwingWorker<Void, Integer> worker;
 
     public FlowLineSvc(String ip, int port) throws IOException {
         this.ip = ip;
         this.port = port;
     }
 
+    public void startFlow(Queue<String> barcodes,
+                          String programNum,
+                          String lotNumber,
+                          boolean startProgram,
+                          String fileName) {
+        worker = new SwingWorker<Void, Integer>() {
+            @Override
+            protected Void doInBackground() throws IOException, InterruptedException {
+                updateInFlow(barcodes, programNum, lotNumber, startProgram, fileName, isCancelled());
+                return null;
+            }
+        };
+    }
+
     public synchronized void updateInFlow(Queue<String> barcodes,
                                           String programNum,
                                           String lotNumber,
                                           boolean startProgram,
-                                          String fileName) throws IOException, InterruptedException {
+                                          String fileName,
+                                          boolean isCancelled) throws IOException, InterruptedException {
         Socket client = new Socket(ip, port);
         client.setSoTimeout(TIME_OUT);
         DataOutputStream out = new DataOutputStream(client.getOutputStream());
@@ -74,11 +86,7 @@ public class FlowLineSvc {
         getResponse(buf, "BK");
 
         // send be to program update barcode
-        while(!barcodes.isEmpty()) {
-            if(stopProgram) {
-                System.out.println(stopProgram+"====================");
-                break;
-            }
+        while(!barcodes.isEmpty() && !isCancelled) {
             System.out.println("in the loop");
 
             try {
@@ -174,28 +182,21 @@ public class FlowLineSvc {
         this.currentCount2 = currentCount2;
     }
 
-    public String getLotNumber() {
-        return lotNumber;
-    }
-
-    public void setLotNumber(String lotNumber) {
-        this.lotNumber = lotNumber;
-    }
-
-    public boolean isStopProgram() {
-        return stopProgram;
-    }
-
-    public void setStopProgram(boolean stopProgram) {
-        this.stopProgram = stopProgram;
-    }
-
     public String getCurrentBarcode() {
         return currentBarcode;
     }
 
     public void setCurrentBarcode(String currentBarcode) {
         this.currentBarcode = currentBarcode;
+    }
+
+
+    public SwingWorker<Void, Integer> getWorker() {
+        return worker;
+    }
+
+    public void setWorker(SwingWorker<Void, Integer> worker) {
+        this.worker = worker;
     }
 
     private String getResponse(BufferedReader buf, String command) {

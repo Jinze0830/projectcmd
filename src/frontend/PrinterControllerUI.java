@@ -77,23 +77,19 @@ public class PrinterControllerUI extends JFrame {
                     JOptionPane.showConfirmDialog(mainPanel, "Please enter lot number",
                             "Warning", JOptionPane.CLOSED_OPTION, JOptionPane.PLAIN_MESSAGE);
                 } else {
-                    try {
-                        flowLineSvc.updateInFlow(barcodes,
-                                "5", lotNumberTextField.getText(),true, fileName);
-                    } catch (IOException exception) {
-                        JOptionPane.showConfirmDialog(mainPanel, "TCP package send and receive issue",
-                                "Warning", JOptionPane.CLOSED_OPTION, JOptionPane.PLAIN_MESSAGE);
-                    } catch (InterruptedException exception) {
-                        exception.printStackTrace();
-                    }
+
+                    flowLineSvc.startFlow(barcodes,
+                            "5", lotNumberTextField.getText(),true, fileName);
+                    flowLineSvc.getWorker().execute();
                 }
+                startButton.setEnabled(false);
             }
         });
 
         stopButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                flowLineSvc.setStopProgram(true);
+                flowLineSvc.getWorker().cancel(true);
             }
         });
 
@@ -104,15 +100,10 @@ public class PrinterControllerUI extends JFrame {
                     JOptionPane.showConfirmDialog(mainPanel, "Please enter lot number",
                             "Warning", JOptionPane.CLOSED_OPTION, JOptionPane.PLAIN_MESSAGE);
                 } else {
-                    try {
-                        flowLineSvc.updateInFlow(barcodes, "5",
-                                flowLineSvc.getLotNumber(),true, fileName);
-                    } catch (IOException exception) {
-                        JOptionPane.showConfirmDialog(mainPanel, "TCP package send and receive issue",
-                                "Warning", JOptionPane.CLOSED_OPTION, JOptionPane.PLAIN_MESSAGE);
-                    } catch (InterruptedException exception) {
-                        exception.printStackTrace();
-                    }
+                    flowLineSvc.startFlow(barcodes,
+                            "5", lotNumberTextField.getText(),false, fileName);
+                    flowLineSvc.getWorker().execute();
+
                 }
             }
         });
