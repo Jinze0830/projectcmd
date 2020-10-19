@@ -84,6 +84,13 @@ public class FlowLineSvc {
         out.flush();
         getResponse(buf, "BK");
 
+        if(!startProgram) {
+            byte[]  sqNumber = CommandFactor.getByteArr("SQ", null, null);
+            out.write(sqNumber);
+            out.flush();
+            getResponse(buf, "SQ");
+        }
+
         // send be to program update barcode
         while(!barcodes.isEmpty() && !worker.isCancelled()) {
             System.out.println("in the loop");
