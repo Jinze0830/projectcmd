@@ -48,7 +48,7 @@ public class PrinterControllerUI extends JFrame {
                 j.showOpenDialog(null);
                 String csvPath = j.getSelectedFile().toPath().toString();
                 fileNameText.setText(csvPath);
-                String[] arr = csvPath.split("/");
+                String[] arr = csvPath.split("\\\\");
                 fileName = arr[arr.length - 1];
                 try {
                     barcodes = reader.getAllBarcodes(csvPath);

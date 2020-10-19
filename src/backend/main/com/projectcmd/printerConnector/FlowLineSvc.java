@@ -1,5 +1,6 @@
 package backend.main.com.projectcmd.printerConnector;
 
+import backend.main.com.projectcmd.csvprocessor.CSVWriter;
 import backend.main.com.projectcmd.csvprocessor.CommandFactor;
 
 import javax.swing.*;
@@ -9,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
+import java.util.Arrays;
 import java.util.Queue;
 
 public class FlowLineSvc {
@@ -137,7 +139,7 @@ public class FlowLineSvc {
 
                     //update current barcode and add in csv
                     setCurrentBarcode(barcode);
-//                    CSVWriter.writeToCSV(Arrays.asList(barcode), "./resources/printed/" + fileName);
+                    CSVWriter.writeToCSV(Arrays.asList(barcode), "./resources/printed/" + fileName);
 
                     Thread.sleep(100);
 
