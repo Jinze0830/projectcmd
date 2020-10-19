@@ -33,7 +33,7 @@ public class FlowLineSvc {
         worker = new SwingWorker<Void, Integer>() {
             @Override
             protected Void doInBackground() throws IOException, InterruptedException {
-                updateInFlow(barcodes, programNum, lotNumber, startProgram, fileName, isCancelled());
+                updateInFlow(barcodes, programNum, lotNumber, startProgram, fileName);
                 return null;
             }
         };
@@ -43,8 +43,7 @@ public class FlowLineSvc {
                                           String programNum,
                                           String lotNumber,
                                           boolean startProgram,
-                                          String fileName,
-                                          boolean isCancelled) throws IOException, InterruptedException {
+                                          String fileName) throws IOException, InterruptedException {
         Socket client = new Socket(ip, port);
         client.setSoTimeout(TIME_OUT);
         DataOutputStream out = new DataOutputStream(client.getOutputStream());
@@ -86,7 +85,7 @@ public class FlowLineSvc {
         getResponse(buf, "BK");
 
         // send be to program update barcode
-        while(!barcodes.isEmpty() && !isCancelled) {
+        while(!barcodes.isEmpty() && !worker.isCancelled()) {
             System.out.println("in the loop");
 
             try {
