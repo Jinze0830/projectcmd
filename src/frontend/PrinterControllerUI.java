@@ -33,7 +33,7 @@ public class PrinterControllerUI extends JFrame {
         CSVReader reader = new CSVReader();
         try {
             //flowLineSvc = new FlowLineSvc("192.168.0.100", 9004);
-            flowLineSvc = new FlowLineSvc("127.0.0.1", 9004);
+            flowLineSvc = new FlowLineSvc("192.168.0.100", 9004);
         } catch (IOException exception) {
             JOptionPane.showConfirmDialog(mainPanel, "Network Connect issue",
                     "Warning", JOptionPane.CLOSED_OPTION, JOptionPane.PLAIN_MESSAGE);
@@ -79,7 +79,7 @@ public class PrinterControllerUI extends JFrame {
                 } else {
                     try {
                         flowLineSvc.updateInFlow(barcodes,
-                                "5", flowLineSvc.getLotNumber(),true, fileName);
+                                "5", lotNumberTextField.getText(),true, fileName);
                     } catch (IOException exception) {
                         JOptionPane.showConfirmDialog(mainPanel, "TCP package send and receive issue",
                                 "Warning", JOptionPane.CLOSED_OPTION, JOptionPane.PLAIN_MESSAGE);

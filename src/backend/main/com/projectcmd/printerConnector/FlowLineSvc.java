@@ -76,6 +76,7 @@ public class FlowLineSvc {
         // send be to program update barcode
         while(!barcodes.isEmpty()) {
             if(stopProgram) {
+                System.out.println(stopProgram+"====================");
                 break;
             }
             System.out.println("in the loop");
@@ -122,7 +123,7 @@ public class FlowLineSvc {
 
                     //update current barcode and add in csv
                     setCurrentBarcode(barcode);
-                    CSVWriter.writeToCSV(Arrays.asList(barcode), "./resources/printed/" + fileName);
+//                    CSVWriter.writeToCSV(Arrays.asList(barcode), "./resources/printed/" + fileName);
 
                     Thread.sleep(100);
 
