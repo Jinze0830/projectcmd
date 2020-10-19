@@ -22,7 +22,7 @@ public class PrinterControllerUI extends JFrame {
     private JButton uploadCVSButton;
     private JTextField curBarcodeTextField;
     private FlowLineSvc flowLineSvc;
-    private String fileName;
+    private String printedFile;
     Queue<String> barcodes = null;
 
     public PrinterControllerUI(String title) {
@@ -48,10 +48,11 @@ public class PrinterControllerUI extends JFrame {
                 j.showOpenDialog(null);
                 String csvPath = j.getSelectedFile().toPath().toString();
                 fileNameText.setText(csvPath);
-                String[] arr = csvPath.split("\\\\");
-                fileName = arr[arr.length - 1];
+                //String[] arr = csvPath.split("\\\\");
+                printedFile = csvPath.substring(0, csvPath.length() - 4) + "_printed.csv";
+
                 try {
-                    barcodes = reader.getAllBarcodes(csvPath);
+                    barcodes = reader.getUnprintedBarcodes(csvPath, printedFile);
                 } catch (IOException exception) {
                         JOptionPane.showConfirmDialog(mainPanel, "Cannot read file",
                                 "Warning", JOptionPane.CLOSED_OPTION, JOptionPane.PLAIN_MESSAGE);
@@ -78,7 +79,7 @@ public class PrinterControllerUI extends JFrame {
                             "Warning", JOptionPane.CLOSED_OPTION, JOptionPane.PLAIN_MESSAGE);
                 } else {
                     flowLineSvc.startFlow(barcodes,
-                            "5", lotNumberTextField.getText(),true, fileName);
+                            "5", lotNumberTextField.getText(),true, printedFile);
                     flowLineSvc.getWorker().execute();
                 }
                 startButton.setEnabled(false);
@@ -100,7 +101,7 @@ public class PrinterControllerUI extends JFrame {
                             "Warning", JOptionPane.CLOSED_OPTION, JOptionPane.PLAIN_MESSAGE);
                 } else {
                     flowLineSvc.startFlow(barcodes,
-                            "5", lotNumberTextField.getText(),false, fileName);
+                            "5", lotNumberTextField.getText(),false, printedFile);
                     flowLineSvc.getWorker().execute();
 
                 }

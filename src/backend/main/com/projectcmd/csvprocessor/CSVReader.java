@@ -6,16 +6,36 @@ import java.util.*;
 
 public class CSVReader {
 
-    public Queue<String> getAllBarcodes(String path) throws FileNotFoundException {
-        Queue<String> queue = new LinkedList<>();
+    public List<String> getAllBarcodes(String path) throws FileNotFoundException {
+        List<String> barcodes = new LinkedList<>();
         try (Scanner scanner = new Scanner(new File(path));) {
             while (scanner.hasNextLine()) {
-                queue.add(scanner.nextLine().split(",")[0]);
+                barcodes.add(scanner.nextLine().split(",")[0]);
             }
         }
         // split to bucket with 80 barcode in each
 
-        return queue;
+        return barcodes;
+    }
+
+    public Queue<String> getUnprintedBarcodes(String path, String printedPath) throws FileNotFoundException {
+        List<String> barcodes = getAllBarcodes(path);
+        List<String> printedBarcodes = null;
+
+        try {
+            printedBarcodes = getAllBarcodes(printedPath);
+        } catch(FileNotFoundException e) {
+            System.out.println("printed list not found");
+        }
+
+        Queue<String> remainBarcodes = new LinkedList<>();
+
+        for(String barcode: barcodes) {
+            if((printedBarcodes != null && !printedBarcodes.contains(barcode)) || printedBarcodes == null) {
+                remainBarcodes.offer(barcode);
+            }
+        }
+        return remainBarcodes;
     }
 
     public List<List<String>> getColumnBuckets(String path) throws FileNotFoundException {

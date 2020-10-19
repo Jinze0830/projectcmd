@@ -31,11 +31,11 @@ public class FlowLineSvc {
                           String programNum,
                           String lotNumber,
                           boolean startProgram,
-                          String fileName) {
+                          String printedFilePath) {
         worker = new SwingWorker<Void, Integer>() {
             @Override
             protected Void doInBackground() throws IOException, InterruptedException {
-                updateInFlow(barcodes, programNum, lotNumber, startProgram, fileName);
+                updateInFlow(barcodes, programNum, lotNumber, startProgram, printedFilePath);
                 return null;
             }
         };
@@ -45,7 +45,7 @@ public class FlowLineSvc {
                                           String programNum,
                                           String lotNumber,
                                           boolean startProgram,
-                                          String fileName) throws IOException, InterruptedException {
+                                          String printedFilePath) throws IOException, InterruptedException {
         Socket client = new Socket(ip, port);
         client.setSoTimeout(TIME_OUT);
         DataOutputStream out = new DataOutputStream(client.getOutputStream());
@@ -139,7 +139,7 @@ public class FlowLineSvc {
 
                     //update current barcode and add in csv
                     setCurrentBarcode(barcode);
-                    CSVWriter.writeToCSV(Arrays.asList(barcode), "./resources/printed/" + fileName);
+                    CSVWriter.writeToCSV(Arrays.asList(barcode), printedFilePath);
 
                     Thread.sleep(100);
 
