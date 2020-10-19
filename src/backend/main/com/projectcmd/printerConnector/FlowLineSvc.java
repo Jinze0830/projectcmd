@@ -195,10 +195,6 @@ public class FlowLineSvc {
         return worker;
     }
 
-    public void setWorker(SwingWorker<Void, Integer> worker) {
-        this.worker = worker;
-    }
-
     private String getResponse(BufferedReader buf, String command) {
         String response = null;
         try {

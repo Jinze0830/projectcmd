@@ -77,7 +77,6 @@ public class PrinterControllerUI extends JFrame {
                     JOptionPane.showConfirmDialog(mainPanel, "Please enter lot number",
                             "Warning", JOptionPane.CLOSED_OPTION, JOptionPane.PLAIN_MESSAGE);
                 } else {
-
                     flowLineSvc.startFlow(barcodes,
                             "5", lotNumberTextField.getText(),true, fileName);
                     flowLineSvc.getWorker().execute();
